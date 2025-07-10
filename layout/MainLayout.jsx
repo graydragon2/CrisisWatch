@@ -1,47 +1,68 @@
-// layout/MainLayout.jsx
-import { useRouter } from 'next/router';
+'use client';
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import SourceToggle from '@/components/SourceToggle';
 
-
 export default function MainLayout({ children }) {
+  const [darkMode, setDarkMode] = useState(false);
+  const [mode, setMode] = useState('Hybrid');
   const router = useRouter();
-  const [darkMode, setDarkMode] = useState(true);
-  const [mode, setMode] = useState('rss'); 
 
-  const handleDashboardClick = () => router.push('/');
-  const handleSettingsClick = () => router.push('/settings');
+  // Load dark mode preference from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark') {
+      document.documentElement.classList.add('dark');
+      setDarkMode(true);
+    }
+  }, []);
+
+  const toggleDarkMode = () => {
+    const newMode = !darkMode;
+    setDarkMode(newMode);
+    if (newMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
+
   const handleLogout = () => {
-    localStorage.clear();
+    // Placeholder for future auth
     router.push('/');
   };
-  const toggleDarkMode = () => setDarkMode(prev => !prev);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', darkMode);
-  }, [darkMode]);
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
-      <nav className="flex justify-between items-center px-4 py-2 bg-gray-800 dark:bg-gray-900 shadow">
-        <div className="text-xl font-bold">CrisisWatch</div>
-        <div className="space-x-4">
-          <button onClick={handleDashboardClick} className="hover:underline">Dashboard</button>
-          <button onClick={handleSettingsClick} className="hover:underline">Settings</button>
-          <button onClick={handleLogout} className="hover:underline">Logout</button>
+    <div className="min-h-screen bg-white dark:bg-gray-900 dark:text-white transition-colors">
+      <header className="bg-gray-100 dark:bg-gray-800 p-4 flex justify-between items-center shadow">
+        <h1 className="text-xl font-bold">CrisisWatch</h1>
+
+        <nav className="space-x-4 flex items-center">
+          <Link href="/" className="hover:underline">Dashboard</Link>
+          <Link href="/settings" className="hover:underline">Settings</Link>
+          <Link href="/darkweb" className="hover:underline">Dark Web</Link>
           <SourceToggle mode={mode} setMode={setMode} />
+
           <button
             onClick={toggleDarkMode}
-            className="bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-500"
+            className="bg-purple-600 text-white px-3 py-1 rounded"
           >
             {darkMode ? 'Light Mode' : 'Dark Mode'}
           </button>
-        </div>
-      </nav>
 
-      <main className="p-4">
-        {children}
-      </main>
+          <button
+            onClick={handleLogout}
+            className="text-sm text-gray-600 dark:text-gray-300 hover:underline"
+          >
+            Logout
+          </button>
+        </nav>
+      </header>
+
+      <main className="p-4">{children}</main>
     </div>
   );
 }
