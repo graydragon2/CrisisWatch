@@ -1,60 +1,19 @@
-import { useState } from 'react';
+import Head from 'next/head';
+import DarkWebChecker from '@/components/DarkWebChecker';
 
-export default function DarkWebMonitor() {
-  const [email, setEmail] = useState('');
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const checkBreach = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/darkweb?email=${encodeURIComponent(email)}`);
-      const data = await res.json();
-      setResult(data);
-    } catch (err) {
-      console.error('Error:', err);
-      setResult({ error: 'Check failed. Try again.' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
+export default function DarkWebPage() {
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Dark Web Monitoring</h1>
-      <input
-        className="w-full border px-3 py-2 rounded mb-4"
-        type="email"
-        placeholder="Enter your email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <button
-        className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
-        onClick={checkBreach}
-        disabled={loading || !email}
-      >
-        {loading ? 'Checking...' : 'Check Now'}
-      </button>
+    <>
+      <Head>
+        <title>Dark Web Monitoring | CrisisWatch</title>
+        <meta name="description" content="Check if your email has been exposed on the dark web using CrisisWatch." />
+      </Head>
 
-      {result && (
-        <div className="mt-4 bg-gray-100 p-4 rounded">
-          {result.error ? (
-            <p className="text-red-600">{result.error}</p>
-          ) : result.breaches?.length ? (
-            <>
-              <p className="font-semibold text-red-600">Breaches Found: {result.breaches.length}</p>
-              <ul className="mt-2 list-disc ml-5">
-                {result.breaches.map((b, i) => (
-                  <li key={i}><strong>{b.Name}</strong> – {b.Description}</li>
-                ))}
-              </ul>
-            </>
-          ) : (
-            <p className="text-green-600">No breaches found 🎉</p>
-          )}
+      <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white">
+        <div className="container mx-auto px-4 py-8">
+          <DarkWebChecker />
         </div>
-      )}
-    </div>
+      </div>
+    </>
   );
 }
