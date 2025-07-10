@@ -3,8 +3,6 @@
     { "source": "/", "destination": "/index" }
   ],
   "build": {
-    "env": {
-      "OPENAI_API_KEY": "@openai_api_key"
-    }
+    "env": {}
   }
 }
