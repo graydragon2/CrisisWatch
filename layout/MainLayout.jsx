@@ -1,5 +1,4 @@
 // layout/MainLayout.jsx
-
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 
@@ -21,7 +20,7 @@ export default function MainLayout({ children }) {
 
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
-      <nav className="flex justify-between items-center px-4 py-2 bg-gray-800 dark:bg-gray-900">
+      <nav className="flex justify-between items-center px-4 py-2 bg-gray-800 dark:bg-gray-900 shadow">
         <div className="text-xl font-bold">CrisisWatch</div>
         <div className="space-x-4">
           <button onClick={handleDashboardClick}>Dashboard</button>
@@ -39,3 +38,4 @@ export default function MainLayout({ children }) {
     </div>
   );
 }
+
