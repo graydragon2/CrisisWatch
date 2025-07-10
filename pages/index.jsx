@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Header from '../components/Header';
-import Sidebar from '../components/Sidebar';
+//import Sidebar from '../components/Sidebar';
 import MainLayout from '../layout/MainLayout';
 
 export default function Dashboard() {
@@ -52,7 +52,6 @@ export default function Dashboard() {
   return (
     <MainLayout>
       <div className="flex">
-        <Sidebar theme={theme} toggleTheme={toggleTheme} />
         <main className={`flex-1 p-6 text-${theme === 'dark' ? 'white' : 'black'} space-y-6 bg-${theme === 'dark' ? 'gray-900' : 'gray-100'}`}>
           <Header />
           <h1 className="text-3xl font-bold">CrisisWatch Dashboard</h1>
