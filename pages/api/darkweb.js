@@ -1,30 +1,33 @@
-import axios from 'axios';
+// pages/api/darkweb.js
 
 export default async function handler(req, res) {
   const { email } = req.query;
 
   if (!email) {
-    return res.status(400).json({ error: 'Email is required.' });
+    return res.status(400).json({ error: 'Email is required' });
+  }
+
+  const apiKey = process.env.LEAKCHECK_API_KEY;
+
+  if (!apiKey) {
+    return res.status(500).json({ error: 'Missing API key in environment variables' });
   }
 
   try {
-    const response = await axios.get(`https://leakcheck.io/api`, {
-      params: {
-        key: process.env.LEAKCHECK_API_KEY,
-        check: email,
-        type: 'email',
-      }
-    });
+    const response = await fetch(
+      `https://leakcheck.io/api?key=${apiKey}&check=${encodeURIComponent(email)}&type=email`
+    );
 
-    if (response.data.success === false) {
-      return res.status(500).json({ error: response.data.message || 'API error.' });
+    const data = await response.json();
+
+    if (!data.success) {
+      return res.status(500).json({ error: data.message || 'API error' });
     }
 
-    const breaches = response.data.result || [];
-
-    res.status(200).json({ breaches });
+    return res.status(200).json({ breaches: data.result });
   } catch (error) {
     console.error('LeakCheck API error:', error);
-    res.status(500).json({ error: 'Something went wrong.' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }
+
