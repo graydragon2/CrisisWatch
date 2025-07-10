@@ -1,10 +1,13 @@
 // layout/MainLayout.jsx
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
+import SourceToggle from '@/components/SourceToggle';
+
 
 export default function MainLayout({ children }) {
   const router = useRouter();
   const [darkMode, setDarkMode] = useState(true);
+  const [mode, setMode] = useState('rss'); 
 
   const handleDashboardClick = () => router.push('/');
   const handleSettingsClick = () => router.push('/settings');
@@ -26,6 +29,7 @@ export default function MainLayout({ children }) {
           <button onClick={handleDashboardClick} className="hover:underline">Dashboard</button>
           <button onClick={handleSettingsClick} className="hover:underline">Settings</button>
           <button onClick={handleLogout} className="hover:underline">Logout</button>
+          <SourceToggle mode={mode} setMode={setMode} />
           <button
             onClick={toggleDarkMode}
             className="bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-500"
