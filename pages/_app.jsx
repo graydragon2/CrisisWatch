@@ -1,6 +1,10 @@
-// pages/_app.jsx
-import '../styles/globals.css';
+import MainLayout from '@/layout/MainLayout';
+import '@/styles/globals.css';
 
 export default function App({ Component, pageProps }) {
-  return <Component {...pageProps} />;
+  return (
+    <MainLayout>
+      <Component {...pageProps} />
+    </MainLayout>
+  );
 }
