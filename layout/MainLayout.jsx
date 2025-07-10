@@ -1,11 +1,5 @@
-// src/layout/MainLayout.jsx
-export default function MainLayout({ children }) {
-  return (
-    <div className="bg-gray-900 min-h-screen">
-      {children}
-    </div>
-  );
-}
+// layout/MainLayout.jsx
+
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 
@@ -19,7 +13,6 @@ export default function MainLayout({ children }) {
     localStorage.clear();
     router.push('/');
   };
-
   const toggleDarkMode = () => setDarkMode(prev => !prev);
 
   useEffect(() => {
