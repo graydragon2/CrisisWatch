@@ -23,18 +23,21 @@ export default function MainLayout({ children }) {
       <nav className="flex justify-between items-center px-4 py-2 bg-gray-800 dark:bg-gray-900 shadow">
         <div className="text-xl font-bold">CrisisWatch</div>
         <div className="space-x-4">
-          <button onClick={handleDashboardClick}>Dashboard</button>
-          <button onClick={handleSettingsClick}>Settings</button>
-          <button onClick={handleLogout}>Logout</button>
+          <button onClick={handleDashboardClick} className="hover:underline">Dashboard</button>
+          <button onClick={handleSettingsClick} className="hover:underline">Settings</button>
+          <button onClick={handleLogout} className="hover:underline">Logout</button>
           <button
             onClick={toggleDarkMode}
-            className="bg-purple-600 text-white px-2 py-1 rounded hover:bg-purple-500"
+            className="bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-500"
           >
-            Toggle {darkMode ? 'Light' : 'Dark'} Mode
+            {darkMode ? 'Light Mode' : 'Dark Mode'}
           </button>
         </div>
       </nav>
-      <main>{children}</main>
+
+      <main className="p-4">
+        {children}
+      </main>
     </div>
   );
 }
