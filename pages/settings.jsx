@@ -1,77 +1,88 @@
-// pages/settings.jsx
-import { useState, useEffect } from 'react';
-
-const defaultFeeds = [
-  { name: 'CNN', url: 'https://rss.cnn.com/rss/cnn_topstories.rss' },
-  { name: 'Reuters', url: 'http://feeds.reuters.com/reuters/topNews' },
-  { name: 'BBC', url: 'http://feeds.bbci.co.uk/news/rss.xml' },
-];
+import { useEffect, useState } from 'react';
 
 export default function SettingsPage() {
   const [feeds, setFeeds] = useState([]);
-  const [newFeed, setNewFeed] = useState('');
+  const [keywords, setKeywords] = useState('');
+  const [customFeed, setCustomFeed] = useState('');
 
-  // Load saved feeds from localStorage
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('rssFeeds')) || defaultFeeds;
-    setFeeds(saved);
+    fetch('/api/preferences')
+      .then(res => res.json())
+      .then(data => {
+        setFeeds(data.feeds || []);
+        setKeywords(data.keywords || '');
+      });
   }, []);
 
-  const saveFeeds = (updatedFeeds) => {
-    setFeeds(updatedFeeds);
-    localStorage.setItem('rssFeeds', JSON.stringify(updatedFeeds));
+  const handleToggleFeed = (url) => {
+    setFeeds(prev =>
+      prev.map(feed =>
+        feed.url === url ? { ...feed, active: !feed.active } : feed
+      )
+    );
   };
 
   const handleAddFeed = () => {
-    if (!newFeed.trim()) return;
-    const name = newFeed.split('/')[2] || `Feed ${feeds.length + 1}`;
-    const updated = [...feeds, { name, url: newFeed }];
-    saveFeeds(updated);
-    setNewFeed('');
+    if (customFeed && !feeds.some(f => f.url === customFeed)) {
+      setFeeds([...feeds, { url: customFeed, active: true }]);
+      setCustomFeed('');
+    }
   };
 
-  const handleRemoveFeed = (index) => {
-    const updated = feeds.filter((_, i) => i !== index);
-    saveFeeds(updated);
+  const savePreferences = () => {
+    fetch('/api/preferences', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ feeds, keywords })
+    });
   };
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">RSS Feed Preferences</h1>
+    <div className="max-w-2xl mx-auto p-6">
+      <h1 className="text-xl font-bold mb-4">RSS Feed Preferences</h1>
 
       <div className="mb-4">
+        <label className="block font-medium">Keyword Filters (comma separated)</label>
         <input
-          type="text"
-          value={newFeed}
-          onChange={(e) => setNewFeed(e.target.value)}
-          placeholder="Enter new RSS feed URL"
-          className="border p-2 w-full mb-2"
+          className="w-full border px-3 py-2 rounded"
+          value={keywords}
+          onChange={e => setKeywords(e.target.value)}
         />
-        <button
-          onClick={handleAddFeed}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500"
-        >
-          Add Feed
-        </button>
       </div>
 
-      <ul className="space-y-2">
-        {feeds.map((feed, index) => (
-          <li
-            key={index}
-            className="flex justify-between items-center bg-gray-100 dark:bg-gray-800 p-3 rounded"
-          >
-            <div>
-              <p className="font-semibold">{feed.name}</p>
-              <p className="text-sm">{feed.url}</p>
-            </div>
-            <button
-              onClick={() => handleRemoveFeed(index)}
-              className="text-red-500 hover:underline"
-            >
-              Remove
-            </button>
-          </li>
+      <div className="mb-4">
+        <label className="block font-medium">Active Feeds</label>
+        {feeds.map(feed => (
+          <div key={feed.url} className="flex items-center justify-between">
+            <span className="text-sm break-all">{feed.url}</span>
+            <input
+              type="checkbox"
+              checked={feed.active}
+              onChange={() => handleToggleFeed(feed.url)}
+            />
+          </div>
+        ))}
+        <div className="flex mt-2">
+          <input
+            className="flex-1 border px-2 py-1 rounded-l"
+            value={customFeed}
+            onChange={e => setCustomFeed(e.target.value)}
+            placeholder="Add feed URL"
+          />
+          <button
+            className="bg-blue-600 text-white px-4 py-1 rounded-r"
+            onClick={handleAddFeed}
+          >Add</button>
+        </div>
+      </div>
+
+      <button
+        className="bg-green-600 text-white px-4 py-2 rounded"
+        onClick={savePreferences}
+      >Save Preferences</button>
+    </div>
+  );
+}
         ))}
       </ul>
     </div>
