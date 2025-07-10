@@ -1,40 +1,42 @@
-// pages/index.jsx
-import MainLayout from '../layout/MainLayout';
+import { useState, useEffect } from 'react';
 
 export default function Dashboard() {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchThreats = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/threats');
+      const json = await res.json();
+      setData(json.items || []);
+    } catch (err) {
+      console.error('Fetch failed:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchThreats(); // fetch on first load
+    const interval = setInterval(fetchThreats, 5 * 60 * 1000); // every 5 minutes
+    return () => clearInterval(interval); // cleanup on unmount
+  }, []);
+
   return (
-    <MainLayout>
-      <div className="p-6 space-y-6">
-        <h1 className="text-3xl font-bold">CrisisWatch Dashboard</h1>
-
-        {/* Section: Live Alerts */}
-        <section className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
-          <h2 className="text-xl font-semibold mb-2">Live Threat Alerts</h2>
-          <ul className="list-disc list-inside text-sm">
-            <li>🔥 Wildfire detected in Okefenokee region.</li>
-            <li>⚠️ Possible phishing attack targeting state officials.</li>
-            <li>🛰️ GPS jamming reported near Kings Bay Naval Base.</li>
-          </ul>
-        </section>
-
-        {/* Section: System Status */}
-        <section className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
-          <h2 className="text-xl font-semibold mb-2">System Status</h2>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>Status: ✅ Online</div>
-            <div>Threat Feeds: 🟢 Active</div>
-            <div>Radio Monitor: 🟡 Standby</div>
-            <div>Dark Web Scan: 🔴 Offline</div>
-          </div>
-        </section>
-
-        {/* Future buttons or charts */}
-        <section className="mt-6">
-          <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500">
-            Refresh Threat Feed
-          </button>
-        </section>
-      </div>
-    </MainLayout>
+    <div className="p-4">
+      <h1 className="text-xl font-bold mb-4">Threat Feed</h1>
+      {loading && <p>Loading...</p>}
+      {!loading && data.length === 0 && <p>No threats found.</p>}
+      <ul className="space-y-2">
+        {data.map((item, idx) => (
+          <li key={idx} className="border-b pb-2">
+            <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+              {item.title}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
