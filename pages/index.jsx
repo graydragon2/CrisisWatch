@@ -1,61 +1,39 @@
-import { useEffect, useState } from 'react';
-import Header from '../components/Header';
+// pages/index.jsx
 import MainLayout from '../layout/MainLayout';
 
 export default function Dashboard() {
-  const [threats, setThreats] = useState([]);
-  const [risk, setRisk] = useState('Unknown');
-  const [email, setEmail] = useState('');
-  const [darkwebStatus, setDarkwebStatus] = useState('');
-  const [theme, setTheme] = useState('dark');
-
-  useEffect(() => {
-    async function fetchThreats() {
-      try {
-        const res = await fetch('/api/threats');
-        const data = await res.json();
-        setThreats(data.threats || []);
-
-        const scoreRes = await fetch('/api/risk-score', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ threats: data.threats })
-        });
-        const scoreData = await scoreRes.json();
-        setRisk(scoreData.risk);
-      } catch (err) {
-        console.error('Error loading threats:', err);
-      }
-    }
-    fetchThreats();
-  }, []);
-
-  const handleDarkwebScan = async () => {
-    try {
-      const res = await fetch('/api/darkweb-scan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-      const result = await res.json();
-      setDarkwebStatus(result.message);
-    } catch (err) {
-      setDarkwebStatus('Scan failed');
-    }
-  };
-
-  const toggleTheme = () => {
-    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
-  };
-
   return (
     <MainLayout>
-      <div className="flex">
-        <main className={`flex-1 p-6 text-${theme === 'dark' ? 'white' : 'black'} space-y-6 bg-${theme === 'dark' ? 'gray-900' : 'gray-100'}`}>
-          <Header />
-          <h1 className="text-3xl font-bold">CrisisWatch Dashboard</h1>
+      <div className="p-6 space-y-6">
+        <h1 className="text-3xl font-bold">CrisisWatch Dashboard</h1>
 
-          </main>
+        {/* Section: Live Alerts */}
+        <section className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
+          <h2 className="text-xl font-semibold mb-2">Live Threat Alerts</h2>
+          <ul className="list-disc list-inside text-sm">
+            <li>🔥 Wildfire detected in Okefenokee region.</li>
+            <li>⚠️ Possible phishing attack targeting state officials.</li>
+            <li>🛰️ GPS jamming reported near Kings Bay Naval Base.</li>
+          </ul>
+        </section>
+
+        {/* Section: System Status */}
+        <section className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
+          <h2 className="text-xl font-semibold mb-2">System Status</h2>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>Status: ✅ Online</div>
+            <div>Threat Feeds: 🟢 Active</div>
+            <div>Radio Monitor: 🟡 Standby</div>
+            <div>Dark Web Scan: 🔴 Offline</div>
+          </div>
+        </section>
+
+        {/* Future buttons or charts */}
+        <section className="mt-6">
+          <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500">
+            Refresh Threat Feed
+          </button>
+        </section>
       </div>
     </MainLayout>
   );
