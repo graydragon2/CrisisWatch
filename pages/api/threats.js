@@ -2,23 +2,35 @@
 import Parser from 'rss-parser';
 
 const parser = new Parser();
-const sources = [
-  'https://alerts.weather.gov/cap/us.php?x=0', // NOAA alerts
-  'https://www.dhs.gov/feeds/alerts.xml',       // DHS alerts (example)
-];
+
+// Example feeds
+const FEEDS = {
+  gdelt: 'https://blog.gdeltproject.org/feed/',
+  bbc: 'http://feeds.bbci.co.uk/news/world/rss.xml',
+  cnn: 'http://rss.cnn.com/rss/edition.rss'
+};
 
 export default async function handler(req, res) {
-  try {
-    const allItems = [];
+  const { sources = ['gdelt', 'bbc'], keywords = [] } = req.query;
 
-    for (const url of sources) {
-      const feed = await parser.parseURL(url);
-      allItems.push(...(feed.items || []));
+  try {
+    const results = [];
+
+    for (const src of sources) {
+      if (FEEDS[src]) {
+        const feed = await parser.parseURL(FEEDS[src]);
+        const filteredItems = feed.items.filter(item =>
+          keywords.length === 0 || keywords.some(kw =>
+            (item.title + item.contentSnippet).toLowerCase().includes(kw.toLowerCase())
+          )
+        );
+        results.push(...filteredItems.map(item => ({ ...item, source: src })));
+      }
     }
 
-    res.status(200).json({ items: allItems.slice(0, 20) });
-  } catch (error) {
-    console.error('RSS fetch failed:', error);
-    res.status(500).json({ items: [] });
+    res.status(200).json(results);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch feeds' });
   }
 }
